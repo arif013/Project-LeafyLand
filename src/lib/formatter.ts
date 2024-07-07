@@ -13,3 +13,7 @@ const NUMBER_FORMATTER = new Intl.NumberFormat("en-us")
 export function formatNumber(number:number){
     return NUMBER_FORMATTER.format(number)
 }
+
+export function descriptionFormatter(desc : string){
+    return desc.substring(0, 50)
+}
