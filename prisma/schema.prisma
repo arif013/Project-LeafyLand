@@ -35,6 +35,7 @@ model Product {
 
   description   String
   category      String?
+  region        String?
 
   price         Int
   imagePath        String
