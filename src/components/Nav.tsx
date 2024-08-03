@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ComponentProps, ReactNode, useState } from "react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
+import React from "react";
 
 export function Nav({ children }: { children: ReactNode }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,72 +18,88 @@ export function Nav({ children }: { children: ReactNode }) {
 
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if(searchQuery) router.push(`/products?q=${searchQuery}`);
-    if(!searchQuery) router.push('/products')
+    if (searchQuery) router.push(`/products?q=${searchQuery}`);
+    if (!searchQuery) router.push('/products');
   };
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
 
+  const handleNavClick = (href: string) => {
+    toggleMenu();
+    router.push(href);
+  };
+
   return (
     <nav className="bg-primary text-primary-foreground flex flex-col md:flex-row md:justify-between items-center px-4 py-2 relative">
-      <div className="flex w-full justify-between md:w-auto items-center">
-        <button onClick={toggleMenu} className="p-2 md:hidden">
-          {menuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
-        </button>
-        <Link href="/" className="flex flex-col items-center md:items-start space-x-2 md:flex-row md:space-x-4">
-          <img src="/path/to/logo.png" alt="Brand Logo" className="h-8 w-8" />
-          <span className="text-lg font-bold">LeafyLand</span>
-        </Link>
-        <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2 md:hidden w-full mt-2">
+      {/* Desktop view */}
+      <div className="hidden md:flex items-center w-full">
+        <div className="flex items-center justify-between w-full max-w-screen-lg mx-auto">
+          {/* Centered Logo and Brand Name */}
+          <Link href="/" className="flex flex-col items-center space-x-2 mx-auto">
+            <img src="/path/to/logo.png" alt="Brand Logo" className="h-8 w-8" />
+            <span className="text-lg font-bold">LeafyLand</span>
+          </Link>
+          {/* Right Side: Search and other options */}
+          <div className="flex-grow flex items-center justify-end space-x-4">
+            {children}
+            <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2">
+              <input
+                type="text"
+                placeholder="Search products..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300 text-gray-500"
+              />
+              <button type="submit" className="p-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary-dark focus:outline-none focus:ring">
+                Search
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile view */}
+      <div className="md:hidden flex flex-col items-center w-full">
+        <div className="flex items-center justify-between w-full px-4">
+          {/* Burger Button */}
+          <button onClick={toggleMenu} className="p-2">
+            {menuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
+          </button>
+          {/* Logo and Brand Name */}
+          <Link href="/" className="flex flex-col items-center space-x-2 mx-auto">
+            <img src="/path/to/logo.png" alt="Brand Logo" className="h-8 w-8" />
+            <span className="text-lg font-bold">LeafyLand</span>
+          </Link>
+        </div>
+        <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2 mt-2 w-full px-4">
           <input
             type="text"
             placeholder="Search products..."
             value={searchQuery}
             onChange={handleSearchChange}
-            className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300 w-full text-gray-500 "
+            className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300 w-full text-gray-500"
           />
           <button type="submit" className="p-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary-dark focus:outline-none focus:ring">
             Search
           </button>
         </form>
       </div>
-      <div className="hidden md:flex items-center space-x-4">
-        {children}
-        <form onSubmit={handleSearchSubmit} className="flex items-center space-x-2">
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300 text-gray-500 "
-          />
-          <button type="submit" className="p-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary-dark focus:outline-none focus:ring">
-            Search
-          </button>
-        </form>
-      </div>
+
+      {/* Mobile menu overlay */}
       {menuOpen && (
-        <div className="absolute top-0 left-0 bg-primary text-primary-foreground w-full h-screen z-50 md:hidden flex flex-col items-center">
+        <div className="fixed inset-0 bg-primary text-primary-foreground z-50 flex flex-col items-center">
           <button onClick={toggleMenu} className="self-end p-4">
             <XIcon className="h-6 w-6" />
           </button>
           <div className="flex flex-col items-center space-y-4 p-4 w-full">
-            {children}
+            {React.Children.map(children, (child) =>
+              React.isValidElement(child)
+                ? React.cloneElement(child, { onClick: () => handleNavClick(child.props.href) })
+                : child
+            )}
           </div>
-          <form onSubmit={handleSearchSubmit} className="flex flex-col items-center space-y-2 p-4 w-full">
-            <input
-              type="text"
-              placeholder="Search products..."
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="p-2 rounded border border-gray-300 focus:outline-none focus:ring focus:border-blue-300 w-full"
-            />
-            <button type="submit" className="p-2 bg-secondary text-secondary-foreground rounded hover:bg-secondary-dark focus:outline-none focus:ring w-full">
-              Search
-            </button>
-          </form>
         </div>
       )}
     </nav>
