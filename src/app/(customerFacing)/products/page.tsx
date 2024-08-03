@@ -1,29 +1,55 @@
-import { ProductCard } from "@/components/ProductCard"
-import db from "@/db/db"
-import { Product } from "@prisma/client"
 
-function getProducts(){
-    return db.product.findMany({
-        where: { isAvailable: true},
-    })
+import { ProductCard } from "@/components/ProductCard";
+import db from "@/db/db";
+import { Product } from "@prisma/client";
+import { notFound } from "next/navigation";
+
+// Function to fetch products based on the search query
+async function getProducts(searchQuery: string | null) {
+    if (searchQuery) {
+        return db.product.findMany({
+            where: {
+                isAvailable: true,
+                OR: [
+                    { name: { contains: searchQuery, mode: 'insensitive' } },
+                    { description: { contains: searchQuery, mode: 'insensitive' } },
+                ],
+            },
+        });
+    } else {
+        return db.product.findMany({
+            where: { isAvailable: true },
+        });
+    }
 }
 
-export default function Products(){
-    return<>
-        <ProductGrid productFetcher={getProducts}/>
-    </>
+// Server-side component to fetch products
+export default async function Products({ searchParams }: { searchParams: { q?: string } }) {
+    const searchQuery = searchParams.q ?? null;
+    const products = await getProducts(searchQuery);
+
+    if (!products) {
+        notFound(); // Handles the case where no products are found
+    }
+
+    return (
+        <>
+            <ProductGrid products={products} />
+        </>
+    );
 }
 
 type ProductGridProps = {
-    productFetcher: ()=> Promise<Product[]>
-}
+    products: Product[];
+};
 
-async function ProductGrid( { productFetcher} : ProductGridProps ){
-    return <>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {(await productFetcher()).map(product => (
-            <ProductCard key= {product.id} {...product} />
-        ))}
-    </div>
-    </>
+// Component to render the product grid
+function ProductGrid({ products }: ProductGridProps) {
+    return (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {products.map((product) => (
+                <ProductCard key={product.id} {...product} />
+            ))}
+        </div>
+    );
 }

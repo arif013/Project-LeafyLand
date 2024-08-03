@@ -1,3 +1,4 @@
+
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import db from "@/db/db";
@@ -58,3 +59,4 @@ async function ProductGrid({ productFetcher, title}: ProductGridProps){
         </div>
     </>
 }
+
