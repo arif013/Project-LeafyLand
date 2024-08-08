@@ -1,6 +1,6 @@
 import { ProductCard } from "@/components/ProductCard"
 import { Button } from "@/components/ui/button"
-import db from "@/db/db"
+import prisma from "@/db/db"
 import { formatCurrency } from "@/lib/formatter"
 import { Product } from "@prisma/client"
 import Image from "next/image"
@@ -10,9 +10,12 @@ import Link from "next/link"
 
 
 export default async function ProductDetails({ params: {id}}: {params: {id: string}}){
-    const allProduct = await db.product.findUnique({
+    const allProduct = await prisma.product.findUnique({
         where: {id} 
     })
+    if (!allProduct) {
+        return <div>Product not found</div>;
+      }
     return <>
         <ProductDetailsPage allProduct={allProduct}/>
     </>
@@ -56,7 +59,7 @@ function ProductDetailsPage( {allProduct}: {allProduct: Product}){
 }
 
 function getProducts(){
-    return db.product.findMany({
+    return prisma.product.findMany({
         where: { isAvailable: true},
     })
 }

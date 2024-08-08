@@ -1,13 +1,13 @@
 
 import { ProductCard } from "@/components/ProductCard";
-import db from "@/db/db";
+import prisma from "@/db/db";
 import { Product } from "@prisma/client";
 import { notFound } from "next/navigation";
 
 // Function to fetch products based on the search query
 async function getProducts(searchQuery: string | null) {
     if (searchQuery) {
-        return db.product.findMany({
+        return prisma.product.findMany({
             where: {
                 isAvailable: true,
                 OR: [
@@ -17,7 +17,7 @@ async function getProducts(searchQuery: string | null) {
             },
         });
     } else {
-        return db.product.findMany({
+        return prisma.product.findMany({
             where: { isAvailable: true },
         });
     }

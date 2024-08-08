@@ -3,11 +3,11 @@
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ComponentProps, ReactNode, useState } from "react";
+import { ComponentProps, ReactNode, useState, ReactElement } from "react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import React from "react";
 
-export function Nav({ children }: { children: ReactNode }) {
+export function Nav({ children }: { children: ReactElement[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const router = useRouter();
@@ -19,7 +19,7 @@ export function Nav({ children }: { children: ReactNode }) {
   const handleSearchSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (searchQuery) router.push(`/products?q=${searchQuery}`);
-    if (!searchQuery) router.push('/products');
+    else router.push("/products");
   };
 
   const toggleMenu = () => {
@@ -94,10 +94,10 @@ export function Nav({ children }: { children: ReactNode }) {
             <XIcon className="h-6 w-6" />
           </button>
           <div className="flex flex-col items-center space-y-4 p-4 w-full">
-            {React.Children.map(children, (child) =>
-              React.isValidElement(child)
-                ? React.cloneElement(child, { onClick: () => handleNavClick(child.props.href) })
-                : child
+            {children.map((child) =>
+              React.cloneElement(child, {
+                onClick: () => handleNavClick(child.props.href),
+              })
             )}
           </div>
         </div>
