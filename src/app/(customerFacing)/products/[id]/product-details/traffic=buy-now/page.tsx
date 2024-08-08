@@ -1,4 +1,4 @@
-import db from "@/db/db"
+import {db} from "@/db/db"
 import { notFound } from "next/navigation"
 
 export default async function BuyNow({ params: {id} }: {params: {id: string}}){

@@ -1,10 +1,12 @@
 
+// import { auth } from "@/auth";
 import { ProductCard } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import db from "@/db/db";
 import { Product } from "@prisma/client";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+// import { notFound } from "next/navigation";
 
 
 function MostOrdered(){
@@ -23,9 +25,12 @@ function NewestProduct(){
     })
 }
 
-export default function HomePage(){
+export default async function HomePage(){
+    // const session = await auth()
+    // if(!session) return notFound()
     return <>
     <main className="flex-initial">
+        
         <ProductGrid title="Suggested Fou You" productFetcher={MostOrdered}/>
         <ProductGrid title="Newly Launched Products" productFetcher={NewestProduct}/>
     </main>

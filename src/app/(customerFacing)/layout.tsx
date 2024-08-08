@@ -1,4 +1,5 @@
 import { Nav, NavLink } from "@/components/Nav";
+// import { SessionProvider } from "next-auth/react";
 
 export const dynamic = "force-dynamic"  //ignoring the cache
 
@@ -9,6 +10,8 @@ export default function Layout({
 }>) {
     return(
         <>
+        {/* <SessionProvider> */}
+
         <Nav>
             <NavLink href="/">Home</NavLink>
             <NavLink href="/products">Products</NavLink>
@@ -16,6 +19,7 @@ export default function Layout({
             <NavLink href="/orders">Services</NavLink>
         </Nav>
         <div className="container my-6">{children}</div>
+        {/* </SessionProvider> */}
         </>
     );
 }

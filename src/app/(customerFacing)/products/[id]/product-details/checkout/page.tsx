@@ -1,6 +1,5 @@
 "use client";
 import * as React from "react";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,18 +17,11 @@ export default function Checkout() {
   const router = useRouter();
   const params = useSearchParams();
   const amount = params.get("amount");
-  const [loading1,setLoading1] = React.useState(true);
+  const [loading1, setLoading1] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
-  const idRef = React.useRef()
+  const idRef = React.useRef();
 
-  React.useEffect(()=>{
-    if(!amount){
-        router.replace("/")
-    }
-    createOrderId();
-  },[])
-
-  const createOrderId = async () => {
+  const createOrderId = React.useCallback(async () => {
     try {
       const response = await fetch("/api/order", {
         method: "POST",
@@ -46,25 +38,33 @@ export default function Checkout() {
       }
 
       const data = await response.json();
-      const id = data.orderId
+      const id = data.orderId;
       idRef.current = id;
-      setLoading1(false)
+      setLoading1(false);
       return;
     } catch (error) {
       console.error("There was a problem with your fetch operation:", error);
     }
-  };
+  }, [amount]);
+
+  React.useEffect(() => {
+    if (!amount) {
+      router.replace("/");
+    }
+    createOrderId();
+  }, [amount, createOrderId, router]);
+
   const processPayment = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-    const orderId = idRef.current
-    console.log(orderId)
+    const orderId = idRef.current;
+    console.log(orderId);
     try {
       const options = {
         key: process.env.key_id,
         amount: parseFloat(amount!) * 100,
         currency: "INR",
-        name: "Payment", //busniess name
+        name: "Payment", // business name
         description: "Payment",
         order_id: orderId,
         handler: async function (response: any) {
@@ -81,8 +81,8 @@ export default function Checkout() {
             headers: { "Content-Type": "application/json" },
           });
           const res = await result.json();
-          //process further request, whatever should happen after request fails
-          if (res.isOk) alert(res.message); //process further request after 
+          // process further request, whatever should happen after request fails
+          if (res.isOk) alert(res.message); // process further request after
           else {
             alert(res.message);
           }
@@ -101,9 +101,14 @@ export default function Checkout() {
       console.error(error);
     }
   };
-  if(loading1) return <div className="container h-screen flex justify-center items-center">
-    <LoaderCircle className=" animate-spin h-20 w-20 text-primary" />
-    </div>
+
+  if (loading1)
+    return (
+      <div className="container h-screen flex justify-center items-center">
+        <LoaderCircle className="animate-spin h-20 w-20 text-primary" />
+      </div>
+    );
+
   return (
     <>
       <Script
@@ -119,13 +124,15 @@ export default function Checkout() {
           <CardHeader>
             <CardTitle className="my-4">Continue</CardTitle>
             <CardDescription>
-              By clicking on pay you'll purchase your plan subscription of Rs{" "}
+              By clicking on pay you&apos;ll purchase your plan subscription of Rs{" "}
               {amount}/month
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={processPayment}>
-              <Button className="w-full" type="submit">{loading?"...loading":"Pay"}</Button>
+              <Button className="w-full" type="submit">
+                {loading ? "...loading" : "Pay"}
+              </Button>
             </form>
           </CardContent>
           <CardFooter className="flex">
